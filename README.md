@@ -137,7 +137,7 @@ $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
 
 ## 👩‍💻 Autora
 
-**Elena Elia** — TFG Ingeniería Informática / DAM 2024-2025
+Eliana Gálvez
 
 ---
 
