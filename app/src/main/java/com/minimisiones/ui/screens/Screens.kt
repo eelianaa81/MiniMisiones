@@ -535,7 +535,7 @@ fun DashboardNinoScreen(
     onCerrarSesion: () -> Unit
 ) {
     Scaffold(
-        topBar = { MiniMisionesTopBar("¡Hola, ${nino.nombre}!") },
+        topBar = { MiniMisionesTopBar("¡Hola, ${nino.nombre}!", onVolver = onCerrarSesion) },
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(

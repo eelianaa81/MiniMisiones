@@ -23,6 +23,9 @@ import com.minimisiones.data.repository.*
 import com.minimisiones.domain.model.*
 import com.minimisiones.ui.screens.*
 import com.minimisiones.ui.viewmodel.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.ImeAction
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -311,7 +314,11 @@ fun SeleccionPerfilScreen(
                             onValueChange = { nombreMiembro = it },
                             label = { Text("Nombre") },
                             singleLine = true,
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Text,
+                                imeAction = ImeAction.Done
+                            )
                         )
                         Text("Rol:", style = MaterialTheme.typography.labelLarge)
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
