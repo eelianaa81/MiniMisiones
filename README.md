@@ -20,6 +20,7 @@ Funciona **completamente offline**, sin necesidad de Internet ni cuenta de usuar
 - ✅ **Flujo de aprobación**: el menor marca la misión, el adulto aprueba o rechaza
 - 🪙 **Sistema de monedas** con bonus de racha cada 5 días consecutivos aprobados (×2)
 - 🎁 **Tienda de premios** canjeables definida por los administradores
+- 🎨 **Splash screen** personalizada con logo de la app
 - 📵 **100% offline** — sin servidor externo ni registro
 
 ---
@@ -75,6 +76,7 @@ La base de datos local (Room/SQLite) consta de 6 tablas:
 | Core KTX | 1.15.0 | Extensiones Kotlin para Android |
 | Lifecycle Runtime KTX | 2.8.7 | Ciclo de vida y corrutinas |
 | Activity Compose | 1.9.3 | Integración Compose con Activity |
+| Core Splash Screen | 1.0.1 | Splash screen nativa de Android |
 
 ---
 
@@ -82,11 +84,13 @@ La base de datos local (Room/SQLite) consta de 6 tablas:
 
 | Pantalla | Rol | Descripción |
 |---------|-----|-------------|
+| Splash Screen | Todos | Pantalla de carga inicial con logo animado |
 | Selección de familia | Todos | Lista de familias guardadas en el dispositivo |
 | Selección de perfil | Todos | Lista de miembros con opción de añadir nuevos |
 | Dashboard Admin | Admin | Acceso a misiones, aprobaciones y premios |
 | Gestionar misiones | Admin | Crear y eliminar misiones asignadas a menores |
 | Aprobar misiones | Admin | Aprobar o rechazar entregas pendientes |
+| Gestionar premios | Admin | Crear y eliminar premios del catálogo familiar |
 | Dashboard Niño | Menor | Lista de misiones con botón ¡Conseguido! |
 | Tienda de premios | Menor | Catálogo de premios canjeables con saldo actual |
 
@@ -127,20 +131,47 @@ $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
 - [x] Sistema de monedas y racha
 - [x] Tienda de premios
 - [x] Gestión de misiones (crear / eliminar)
-- [ ] Gestión de premios desde el admin
-- [ ] Splash screen con logo animado
+- [x] Gestión de premios desde el admin
+- [x] Splash screen con logo personalizado
+- [x] Mejoras en UI/UX (roles traducidos, layout mejorado)
 - [ ] Sincronización en la nube
 - [ ] Notificaciones push
 - [ ] Estadísticas y gráficas
+- [ ] Sistema de logros y medallas
+
+---
+
+## 🆕 Últimas actualizaciones (v1.1.0)
+
+**Fecha:** 23 de abril de 2026
+
+### ✨ Nuevas funcionalidades
+- **Splash Screen**: Implementada pantalla de carga inicial con logo de MiniMisiones
+- **Gestión de Premios**: Los administradores ahora pueden crear y eliminar premios desde el dashboard
+- **Mejoras en UI**:
+    - Roles traducidos al español (Papá, Mamá, Niño, Niña)
+    - Layout mejorado en selección de roles con mejor distribución
+    - Nuevo icono de launcher personalizado
+
+### 🔧 Mejoras técnicas
+- Integración de `androidx.core:core-splashscreen:1.0.1`
+- Refactorización de la navegación para incluir pantalla inicial
+- Optimización del flujo de pantallas
+
+### 🎨 Cambios visuales
+- Nuevo diseño de icono de la aplicación
+- Tema personalizado para splash screen
+- Interfaz más intuitiva en selección de perfiles
 
 ---
 
 ## 👩‍💻 Autora
 
-Eliana Gálvez
+**Eliana Gálvez**
 
 ---
 
 ## 📄 Licencia
 
 Proyecto académico desarrollado como Trabajo Fin de Grado.
+
