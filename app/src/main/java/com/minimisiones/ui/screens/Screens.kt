@@ -30,6 +30,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import com.minimisiones.R
+import androidx.compose.foundation.Image
+import androidx.compose.ui.res.painterResource
+import androidx.compose.runtime.LaunchedEffect
+import kotlinx.coroutines.delay
 
 // ═══════════════════════════════════════════════════════════════════
 // PANTALLAS — Jetpack Compose
@@ -285,7 +289,7 @@ fun DashboardAdminScreen(
     onCerrarSesion: () -> Unit
 ) {
     Scaffold(
-        topBar = {MiniMisionesTopBar("Hola, $nombreAdmin") }
+        topBar = { MiniMisionesTopBar("Hola, $nombreAdmin", onVolver = onCerrarSesion) }
     ) { padding ->
         Column(
             modifier = Modifier
@@ -804,7 +808,7 @@ fun GestionMisionesScreen(
     var nombre by remember { mutableStateOf("") }
     var monedas by remember { mutableStateOf("10") }
     var frecuencia by remember { mutableStateOf(Frecuencia.DIARIA) }
-    var ninoSeleccionado by remember { mutableStateOf<Usuario?>(null) }
+    var ninoSeleccionado by remember { mutableStateOf<List<Usuario>>(emptyList()) }
 
     Scaffold(
         topBar = { MiniMisionesTopBar("Gestionar misiones", onVolver = onVolver) },
@@ -867,13 +871,19 @@ fun GestionMisionesScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         if (ninoAsignado != null) {
-                            AvatarUsuario(nombre = ninoAsignado.nombre, id = ninoAsignado.id, tamanio = 40)
+                            AvatarUsuario(
+                                nombre = ninoAsignado.nombre,
+                                id = ninoAsignado.id,
+                                tamanio = 40
+                            )
                         }
                         Column(modifier = Modifier.weight(1f)) {
                             Text(mision.nombre, fontWeight = FontWeight.Medium)
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 AssistChip(onClick = {}, label = { Text("🪙 ${mision.monedas}") })
-                                AssistChip(onClick = {}, label = { Text(mision.frecuencia.name.lowercase()) })
+                                AssistChip(
+                                    onClick = {},
+                                    label = { Text(mision.frecuencia.name.lowercase()) })
                                 ninoAsignado?.let {
                                     Text(
                                         it.nombre,
@@ -897,8 +907,8 @@ fun GestionMisionesScreen(
 
         // Diálogo para crear nueva misión
         if (mostrarFormulario) {
-            if (ninoSeleccionado == null && ninos.isNotEmpty()) {
-                ninoSeleccionado = ninos.first()
+            if (ninoSeleccionado.isEmpty() && ninos.isNotEmpty()) {
+                ninoSeleccionado = listOf(ninos.first())
             }
             AlertDialog(
                 onDismissRequest = { mostrarFormulario = false },
@@ -925,7 +935,11 @@ fun GestionMisionesScreen(
                                 FilterChip(
                                     selected = frecuencia == freq,
                                     onClick = { frecuencia = freq },
-                                    label = { Text(freq.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                                    label = {
+                                        Text(
+                                            freq.name.lowercase()
+                                                .replaceFirstChar { it.uppercase() })
+                                    }
                                 )
                             }
                         }
@@ -934,8 +948,14 @@ fun GestionMisionesScreen(
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 ninos.forEach { nino ->
                                     FilterChip(
-                                        selected = ninoSeleccionado?.id == nino.id,
-                                        onClick = { ninoSeleccionado = nino },
+                                        selected = ninoSeleccionado.any { it.id == nino.id },
+                                        onClick = {
+                                            ninoSeleccionado = if (ninoSeleccionado.any { it.id == nino.id }) {
+                                                ninoSeleccionado.filter { it.id != nino.id }
+                                            } else {
+                                                ninoSeleccionado + nino
+                                            }
+                                        },
                                         label = { Text(nino.nombre) }
                                     )
                                 }
@@ -946,7 +966,7 @@ fun GestionMisionesScreen(
                 confirmButton = {
                     Button(
                         onClick = {
-                            ninoSeleccionado?.let { nino ->
+                            ninoSeleccionado.forEach { nino ->
                                 onCrearMision(
                                     nombre,
                                     monedas.toIntOrNull() ?: 10,
@@ -957,12 +977,174 @@ fun GestionMisionesScreen(
                             mostrarFormulario = false
                             nombre = ""
                             monedas = "10"
+                            ninoSeleccionado = emptyList()
                         },
-                        enabled = nombre.isNotBlank() && ninoSeleccionado != null
+                        enabled = nombre.isNotBlank() && ninoSeleccionado.isNotEmpty()
                     ) { Text("Crear") }
                 },
                 dismissButton = {
                     TextButton(onClick = { mostrarFormulario = false }) { Text("Cancelar") }
+                }
+            )
+        }
+    }
+}
+@Composable
+fun SplashScreen(onNextScreen:() -> Unit) {
+    LaunchedEffect(key1 = true) {
+        delay(2000L)
+        onNextScreen()
+    }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF1A0B2E)),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = com.minimisiones.R.drawable.logo_minimisiones),
+            contentDescription = "Logo MiniMisiones",
+            modifier = Modifier.size(280.dp)
+        )
+    }
+}
+// ── PANTALLA: Gestión de premios (administrador) ─────────────────
+
+/**
+ * Pantalla para crear y eliminar premios del catálogo familiar.
+ * El administrador define el nombre y el coste en monedas de cada premio.
+ *
+ * @param premios          Lista de premios actuales de la familia.
+ * @param onCrearPremio    Callback con nombre y coste del nuevo premio.
+ * @param onEliminarPremio Callback con el ID del premio a eliminar.
+ * @param onVolver         Navega de vuelta al dashboard del administrador.
+ */
+@Composable
+fun GestionPremiosScreen(
+    premios: List<Premio>,
+    familiaId: Long,
+    onCrearPremio: (nombre: String, coste: Int) -> Unit,
+    onEliminarPremio: (Long) -> Unit,
+    onVolver: () -> Unit
+) {
+    var mostrarFormulario by remember { mutableStateOf(false) }
+    var nombre by remember { mutableStateOf("") }
+    var coste by remember { mutableStateOf("10") }
+
+    Scaffold(
+        topBar = { MiniMisionesTopBar("Gestionar premios", onVolver = onVolver) },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { mostrarFormulario = true },
+                containerColor = Color(0xFF5C35D4)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Nuevo premio", tint = Color.White)
+            }
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(vertical = 16.dp)
+        ) {
+            if (premios.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "No hay premios todavía.\nPulsa + para crear el primero.",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        )
+                    }
+                }
+            }
+
+            items(premios, key = { it.id }) { premio ->
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(2.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text("🎁", fontSize = 28.sp)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                premio.nombre,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                "🪙 ${premio.coste} monedas",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF854F0B)
+                            )
+                        }
+                        IconButton(onClick = { onEliminarPremio(premio.id) }) {
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = "Eliminar",
+                                tint = Color(0xFFB00020)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Diálogo para crear nuevo premio
+        if (mostrarFormulario) {
+            AlertDialog(
+                onDismissRequest = {
+                    mostrarFormulario = false
+                    nombre = ""
+                    coste = "10"
+                },
+                title = { Text("Nuevo premio") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        OutlinedTextField(
+                            value = nombre,
+                            onValueChange = { nombre = it },
+                            label = { Text("Nombre del premio") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        OutlinedTextField(
+                            value = coste,
+                            onValueChange = { coste = it.filter { c -> c.isDigit() } },
+                            label = { Text("Coste en monedas") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            onCrearPremio(nombre, coste.toIntOrNull() ?: 10)
+                            mostrarFormulario = false
+                            nombre = ""
+                            coste = "10"
+                        },
+                        enabled = nombre.isNotBlank() && (coste.toIntOrNull() ?: 0) > 0
+                    ) { Text("Crear") }
+                },
+                dismissButton = {
+                    TextButton(onClick = {
+                        mostrarFormulario = false
+                        nombre = ""
+                        coste = "10"
+                    }) { Text("Cancelar") }
                 }
             )
         }

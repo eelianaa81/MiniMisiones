@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.MiniMisiones" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.MiniMisiones.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_minimisiones</item>
+        <item name="postSplashScreenTheme">@style/Theme.MiniMisiones</item>
+    </style>
+
 </resources>
+

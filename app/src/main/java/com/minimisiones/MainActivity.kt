@@ -26,10 +26,12 @@ import com.minimisiones.ui.viewmodel.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        installSplashScreen()
         enableEdgeToEdge()
 
         val db = Minimisionesdatabase.getInstance(applicationContext)
@@ -61,12 +63,15 @@ class MainActivity : ComponentActivity() {
 }
 
 sealed class Pantalla {
+    object Splash : Pantalla()
     object SeleccionFamilia : Pantalla()
     data class SeleccionPerfil(val familiaId: Long) : Pantalla()
     data class DashboardAdmin(val familiaId: Long, val adminId: Long) : Pantalla()
     data class GestionMisiones(val familiaId: Long) : Pantalla()
     data class DashboardNino(val familiaId: Long, val ninoId: Long) : Pantalla()
     data class Aprobaciones(val familiaId: Long) : Pantalla()
+
+    data class GestionPremios(val familiaId: Long) : Pantalla()
     data class TiendaPremios(val familiaId: Long, val ninoId: Long) : Pantalla()
 }
 
@@ -78,7 +83,7 @@ fun MiniMisionesApp(
     entregaRepository: EntregaMisionRepository,
     premioRepository: PremioRepository
 ) {
-    var pantallaActual by remember { mutableStateOf<Pantalla>(Pantalla.SeleccionFamilia) }
+    var pantallaActual by remember { mutableStateOf<Pantalla>(Pantalla.Splash) }
 
     val familiaViewModel = remember { FamiliaViewModel(familiaRepository) }
     val usuarioViewModel = remember { UsuarioViewModel(usuarioRepository) }
@@ -100,6 +105,10 @@ fun MiniMisionesApp(
     }
 
     when (val pantalla = pantallaActual) {
+
+        is Pantalla.Splash -> {
+            SplashScreen(onNextScreen = { pantallaActual = Pantalla.SeleccionFamilia })
+        }
 
          is Pantalla.SeleccionFamilia -> {
             SeleccionFamiliaScreen(
@@ -147,7 +156,7 @@ fun MiniMisionesApp(
                 pendientesCount = entregaUiState.pendientes.size,
                 onGestionMisiones = { pantallaActual = Pantalla.GestionMisiones(pantalla.familiaId) },
                 onAprobaciones = { pantallaActual = Pantalla.Aprobaciones(pantalla.familiaId) },
-                onGestionPremios = { pantallaActual = pantalla },
+                onGestionPremios = { pantallaActual = Pantalla.GestionPremios(pantalla.familiaId) },
                 onCerrarSesion = {
                     pantallaActual = Pantalla.SeleccionPerfil(pantalla.familiaId)
                 }
@@ -174,8 +183,7 @@ fun MiniMisionesApp(
             )
         }
         is Pantalla.GestionMisiones -> {
-            // pantalla temporal hasta crear GestionMisionesScreen
-            GestionMisionesScreen(
+           GestionMisionesScreen(
                 misiones = misionUiState.misiones,
                 ninos = usuarioUiState.ninos,
                 onCrearMision = { nombre, monedas, frecuencia, ninoId ->
@@ -210,6 +218,25 @@ fun MiniMisionesApp(
                     }
                 )
             }
+        }
+
+        is Pantalla.GestionPremios -> {
+            GestionPremiosScreen(
+                premios = premioUiState.catalogo,
+                familiaId = pantalla.familiaId,
+                onCrearPremio = { nombre, coste ->
+                    premioViewModel.crearPremio(nombre, coste, pantalla.familiaId)
+                },
+                onEliminarPremio = { premioId ->
+                    premioViewModel.eliminarPremio(premioId)
+                },
+                onVolver = {
+                    pantallaActual = Pantalla.DashboardAdmin(
+                        pantalla.familiaId,
+                        usuarioUiState.usuarioActual?.id ?: 0L
+                    )
+                }
+            )
         }
 
         is Pantalla.TiendaPremios -> {
@@ -293,7 +320,12 @@ fun SeleccionPerfilScreen(
                         Column {
                             Text(usuario.nombre, fontWeight = FontWeight.Medium)
                             Text(
-                                usuario.rol.name,
+                                when (usuario.rol) {
+                                    Rol.PADRE -> "Papá"
+                                    Rol.MADRE -> "Mamá"
+                                    Rol.NINO -> "Niño"
+                                    Rol.NINA -> "Niña"
+                                },
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                             )
@@ -321,7 +353,9 @@ fun SeleccionPerfilScreen(
                             )
                         )
                         Text("Rol:", style = MaterialTheme.typography.labelLarge)
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                        ) {
                             listOf(Rol.PADRE, Rol.MADRE).forEach { rol ->
                                 FilterChip(
                                     selected = rolSeleccionado == rol,
@@ -338,7 +372,9 @@ fun SeleccionPerfilScreen(
                                 )
                             }
                         }
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
+                        ) {
                             listOf(Rol.NINO, Rol.NINA).forEach { rol ->
                                 FilterChip(
                                     selected = rolSeleccionado == rol,
