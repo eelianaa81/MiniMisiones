@@ -63,7 +63,7 @@ class FamiliaViewModel(
     val uiState: StateFlow<FamiliaUiState> = _uiState.asStateFlow()
 
     init {
-        // Empieza a observar las gfamilias nada más crearse el ViewModel
+        // Empieza a observar las familias nada más crearse el ViewModel
         viewModelScope.launch {
             familiaRepository.obtenerFamilias().collect { familias ->
                 _uiState.update { it.copy(familias = familias) }
@@ -165,7 +165,7 @@ class UsuarioViewModel(
         }
     }
 
-    /** Establece el usuario activo en sesión. */
+    /** Registra un nuevo miembro en la familia. */
     fun seleccionarUsuario(usuario: Usuario) {
         _uiState.update { it.copy(usuarioActual = usuario) }
     }
@@ -474,7 +474,7 @@ class UsuarioViewModel(
          * Solo llamar cuando el administrador haya confirmado el canje.
          *
          * @param premioId  Premio a canjear.
-         * @param nninoId   Niño/niña que realiza el canje.
+         * @param ninoId   Niño/niña que realiza el canje.
          */
         fun canjear(premioId: Long, ninoId: Long) {
             viewModelScope.launch {

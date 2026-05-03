@@ -3,6 +3,10 @@ package com.minimisiones
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import android.os.Handler
+import android.os.Looper
 import com.minimisiones.data.local.Minimisionesdatabase
 import com.minimisiones.data.repository.*
 import com.minimisiones.domain.model.*
@@ -27,13 +33,24 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.ImeAction
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val splashScreen = installSplashScreen()
+
+        var isLoading = true
+        splashScreen.setKeepOnScreenCondition { isLoading }
+
         super.onCreate(savedInstanceState)
-        installSplashScreen()
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            isLoading = false
+        }, 1000)
+
         enableEdgeToEdge()
 
+        // 🔥 TODO ESTO VA AQUÍ
         val db = Minimisionesdatabase.getInstance(applicationContext)
 
         val familiaRepository = FamiliaRepository(db.familiaDao())

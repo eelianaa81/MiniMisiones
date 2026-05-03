@@ -6,6 +6,8 @@
 
 ## 📱 ¿Qué es MiniMisiones?
 
+## 📸 Capturas de la aplicación
+
 MiniMisiones convierte las tareas del hogar en **misiones gamificadas** para los hijos e hijas de una familia. Los adultos crean y asignan misiones, aprueban las entregas de los menores y gestionan el catálogo de premios. Los menores acumulan monedas virtuales y las canjean por premios.
 
 Funciona **completamente offline**, sin necesidad de Internet ni cuenta de usuario.
@@ -113,7 +115,7 @@ git clone https://github.com/eelianaa81/MiniMisiones.git
 
 2. Abre el proyecto en Android Studio.
 
-3. Compila e instala con Gradle:
+3. Ejecuta la aplicación desde Android Studio en un emulador o dispositivo físico mediante el botón ▶ Run.
 ```bash
 $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
 .\gradlew.bat clean installDebug
@@ -168,10 +170,10 @@ $env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"
 ## 👩‍💻 Autora
 
 **Eliana Gálvez**
-
+Desarrolladora de aplicaciones Android (en formación)
 ---
 
 ## 📄 Licencia
 
-Proyecto académico desarrollado como Trabajo Fin de Grado.
+> Proyecto desarrollado como Trabajo Fin de Grado (DAM) enfocado en la gamificación aplicada al entorno familiar.
 

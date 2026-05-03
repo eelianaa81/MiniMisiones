@@ -56,7 +56,7 @@ class FamiliaRepository(private val familiaDao: FamiliaDao) {
     suspend fun buscarPorCodigo(codigo: String): Familia? =
         familiaDao.buscarPorCodigo(codigo)?.toDomain()
 
-    //Genera un código de 6 caracteres sin caracteres coonfusos (0, O, I, 1)
+    //Genera un código de 6 caracteres sin caracteres confusos (0, O, I, 1)
     private fun generarCodigo(): String =
         (1..6).map { "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".random() } .joinToString("")
 

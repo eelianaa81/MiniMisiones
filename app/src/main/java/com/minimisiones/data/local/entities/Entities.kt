@@ -36,7 +36,7 @@ data class FamiliaEntity(
  * @property rol "PADRE", "MADRE", "NINO" o "NINA".
  *                Los dos primeros son administradores.
  * @property monedas Saldo actual. Empiezan con 0 y solo cambia
- *                   si un administrador aprueda o confirma canje.
+ *                   si un administrador aprueba o confirma canje.
  * @property familiaId Clave foránea familia a la qué pertenece el usuario.
  *
  * La anotación @ForeignKey garantiza que si se borra una familia, todos los usuarios

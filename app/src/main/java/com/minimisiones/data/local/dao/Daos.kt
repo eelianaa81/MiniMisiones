@@ -149,7 +149,7 @@ interface EntregaMisionDao {
     fun obtenerHistorialNino(ninoId: Long): Flow<List<EntregaMisionEntity>>
 
     /**
-     * Comprueba si el niño/niña ya entregá esta misión hoy.
+     * Comprueba si el niño/niña ya entregó esta misión hoy.
      * Evita que se pueda marcar la misma misión varias veces en un día.
      *
      * @param misionId ID de la misión.
